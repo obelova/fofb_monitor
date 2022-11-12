@@ -13,6 +13,29 @@ import pyqtgraph as pg
 from pyqtgraph import PlotWidget
 import epics
 import numpy as np
+from scipy.fft import fft, fftfreq
+from scipy.interpolate import interp1d
+from scipy.signal import windows
+
+
+def calc_fft(x, y, spline_kind='linear', win_on=False):
+    # x, y - input data
+    # N - number of sample points
+    N = len(x)
+    x_sample, step = np.linspace(x[0], x[-1], N, retstep=True)
+
+    if spline_kind == 'None':
+        y_sample = y
+    else:
+        f = interp1d(x, y, kind=spline_kind)
+        y_sample = f(x_sample)
+
+    if win_on == True:
+        y_sample *= windows.hann(N)
+
+    yf = 2.0 * np.abs(fft(y_sample))[:N // 2]
+    xf = fftfreq(N, step)[:N // 2]
+    return xf, yf
 
 class Ui_MainWindow(object):
     bpms = ["STP0", "STP2", "STP4", "SRP1", "SRP2", "SRP3", "SRP4", "SRP5", "SRP6", "SRP7",
@@ -75,12 +98,15 @@ class Ui_MainWindow(object):
         pen = pg.mkPen(color=(255, 0, 0))
         self.data_line_graph =  self.graph.plot(self.t, self.ch, pen=pen)
 
+        self.f_fft = []
+        self.ch_fft = []
+
         self.fourier = PlotWidget(self.centralwidget)
         self.fourier.setGeometry(QtCore.QRect(200, 290, 781, 251))
         self.fourier.setObjectName("fourier")
         self.fourier.setBackground('w')
         pen = pg.mkPen(color=(255, 0, 0))
-        self.data_line_fourier = self.fourier.plot([0, 1, 2, 3], [0, 1, 4, 9], pen=pen)
+        self.data_line_fourier = self.fourier.plot(self.f_fft, self.ch_fft, pen=pen)
 
         self.graph_options_label = QtWidgets.QLabel(self.centralwidget)
         self.graph_options_label.setGeometry(QtCore.QRect(20, 20, 91, 16))
@@ -142,12 +168,7 @@ class Ui_MainWindow(object):
             epics.PV('VEPP4:'+bpm+':connect-Cmd').put(on)
 
     def fofb_pv_onChanges(self, pvname=None, nanoseconds=None, value=None, char_value=None, **kw):
-        if len(self.t) > 500:
-            self.t = self.t[1:]  # Remove the first y element.
-            self.ch = self.ch[1:]  # Remove the first
-
-        print(value)
-
+        # print(value, self.mode_lowfreq.value)
         self.t.append(self.cur_time_in_sec + nanoseconds / 1000000000)  # Add a new value 1 higher than the last.
         if len(self.t) > 1 and self.t[-2] > self.t[-1]:
             self.t[-1] += 1.
@@ -157,9 +178,19 @@ class Ui_MainWindow(object):
         temp = []
         for i in range(len(self.ch)):
             temp.append(self.ch[i] - self.mean)
-        self.data_line_graph.setData(self.t, self.ch)  # or temp for mean
+
+        if len(self.t) == 500:
+            self.data_line_graph.setData(self.t, self.ch)  # or temp for mean
+            self.t_fft, self.ch_fft = calc_fft(self.t, self.ch)
+            self.data_line_fourier.setData(self.t_fft[2:], self.ch_fft[2:])
+            self.t = self.t[50:]
+            self.ch = self.ch[50:]
+
 
     def show_onClicked(self):
+        self.t = []
+        self.ch = []
+
         self.show_button.setStyleSheet('background-color: grey;')
         self.stop_button.setStyleSheet('background-color: light grey;')
 
@@ -167,7 +198,7 @@ class Ui_MainWindow(object):
         epics.PV('VEPP4:' + self.cur_bpm + ':connect-Cmd').put(1)
 
         self.mode_lowfreq = epics.PV('VEPP4:' + self.cur_bpm + ':mode_lowfreq-Cmd')
-        self.mode_lowfreq.put(10)
+        self.mode_lowfreq.put(30)
         self.mode_lowfreq.add_callback(self.mode_lowfreq_onChanges)
 
         epics.PV('VEPP4:' + self.cur_bpm + ':lowfreq_raw-Cmd').put(1)
@@ -177,7 +208,9 @@ class Ui_MainWindow(object):
         self.fofb_ch.add_callback(self.fofb_pv_onChanges)
 
     def mode_lowfreq_onChanges(self, pvname=None, value=None, char_value=None, **kw):
-        if value == 1:
+
+        if value == 5:
+            print('callback works!')
             self.mode_lowfreq.put(10)
 
     def stop_onClicked(self):
@@ -191,8 +224,8 @@ class Ui_MainWindow(object):
 
         epics.PV('VEPP4:' + self.cur_bpm + ':lowfreq_raw-Cmd').put(0)
 
-        self.t = []
-        self.ch = []
+        self.on_button.setChecked(True)
+        self.cur_time_in_sec = 0.0
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
