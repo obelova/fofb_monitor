@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1010</width>
-    <height>616</height>
+    <width>1120</width>
+    <height>680</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>FOFB Monitor</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QComboBox" name="bmp_combobox">
+   <widget class="QComboBox" name="V_BPM">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>150</y>
-      <width>61</width>
+      <x>130</x>
+      <y>120</y>
+      <width>80</width>
       <height>22</height>
      </rect>
     </property>
@@ -294,11 +294,14 @@
      </property>
     </item>
    </widget>
-   <widget class="QPushButton" name="write_to_file_button">
+   <widget class="QPushButton" name="F_REC">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>440</y>
+      <x>130</x>
+      <y>520</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -307,11 +310,11 @@
      <string>Save to Files</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="x_checkbox">
+   <widget class="QCheckBox" name="F_X">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>330</y>
+      <x>130</x>
+      <y>430</y>
       <width>81</width>
       <height>20</height>
      </rect>
@@ -320,11 +323,11 @@
      <string>x</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="z_checkbox">
+   <widget class="QCheckBox" name="F_Z">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>360</y>
+      <x>130</x>
+      <y>460</y>
       <width>81</width>
       <height>20</height>
      </rect>
@@ -333,34 +336,21 @@
      <string>z</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="total_time_line">
+   <widget class="QLineEdit" name="F_SIZE">
     <property name="geometry">
      <rect>
-      <x>90</x>
+      <x>130</x>
       <y>360</y>
-      <width>61</width>
+      <width>80</width>
       <height>22</height>
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="seconds_label">
+   <widget class="QCheckBox" name="F_I">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>360</y>
-      <width>21</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>s</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="I_checkbox">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>390</y>
+      <x>130</x>
+      <y>490</y>
       <width>81</width>
       <height>20</height>
      </rect>
@@ -369,40 +359,46 @@
      <string>I</string>
     </property>
    </widget>
-   <widget class="QLabel" name="recording_time_label">
+   <widget class="QLabel" name="F_LABEL_SIZE">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>320</y>
-      <width>91</width>
-      <height>41</height>
+      <x>50</x>
+      <y>360</y>
+      <width>55</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>Recording time:</string>
+     <string>Size:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
-   <widget class="PlotWidget" name="graph" native="true">
+   <widget class="PlotWidget" name="GRAPH" native="true">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>310</x>
       <y>20</y>
-      <width>781</width>
-      <height>251</height>
+      <width>780</width>
+      <height>290</height>
      </rect>
     </property>
+    <property name="cursor">
+     <cursorShape>ArrowCursor</cursorShape>
+    </property>
    </widget>
-   <widget class="PlotWidget" name="fourier" native="true">
+   <widget class="PlotWidget" name="FOURIER" native="true">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>290</y>
-      <width>781</width>
-      <height>251</height>
+      <x>310</x>
+      <y>330</y>
+      <width>780</width>
+      <height>290</height>
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="graph_options_label">
+   <widget class="QLabel" name="LABEL_GRAPH_OPTIONS">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -415,54 +411,63 @@
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Graph Options&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="on_button">
+   <widget class="QRadioButton" name="V_RAD_4">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>90</x>
       <y>50</y>
-      <width>95</width>
+      <width>120</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>All pv on</string>
+     <string>VEPP-4M BPMs</string>
     </property>
     <property name="checked">
      <bool>true</bool>
     </property>
+    <property name="autoExclusive">
+     <bool>false</bool>
+    </property>
    </widget>
-   <widget class="QLabel" name="bpm_label">
+   <widget class="QLabel" name="V_LABEL_BPM">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>150</y>
+      <x>60</x>
+      <y>120</y>
       <width>55</width>
-      <height>21</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
      <string>BPM:</string>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
    </widget>
-   <widget class="QLabel" name="channel_label">
+   <widget class="QLabel" name="V_LABEL_CHANNEL">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>180</y>
+      <x>60</x>
+      <y>150</y>
       <width>55</width>
-      <height>16</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
      <string>channel:</string>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
    </widget>
-   <widget class="QComboBox" name="channel_combobox">
+   <widget class="QComboBox" name="V_CHANNEL">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>180</y>
-      <width>61</width>
+      <x>130</x>
+      <y>150</y>
+      <width>80</width>
       <height>22</height>
      </rect>
     </property>
@@ -482,37 +487,11 @@
      </property>
     </item>
    </widget>
-   <widget class="QPushButton" name="show_button">
+   <widget class="QLabel" name="LABEL_FILE_RECORDING">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>220</y>
-      <width>61</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Show</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="stop_buttom">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>220</y>
-      <width>61</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Stop</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="file_rec_label">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>290</y>
+      <y>330</y>
       <width>101</width>
       <height>21</height>
      </rect>
@@ -521,17 +500,345 @@
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;File Recording&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QLabel" name="note_label">
+   <widget class="QRadioButton" name="V_RAD_3">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>90</x>
       <y>80</y>
-      <width>181</width>
-      <height>51</height>
+      <width>120</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;note&lt;/span&gt;: don't forget to turn off &lt;br/&gt;all pvs before viewing &lt;br/&gt;the graphs and recording files&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>VEPP-3 BPMs</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+    <property name="autoExclusive">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="V_ON_OFF">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>210</y>
+      <width>151</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Graph Visualization</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="F_LABEL_BPM">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>390</y>
+      <width>55</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>BPM:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="F_BPM">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>390</y>
+      <width>80</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>STP0</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>STP2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>STP4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP3</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP5</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP6</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP7</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP8</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP9</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SIP1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SIP2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP10</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP11</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP12</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP13</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP14</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP15</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP16</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SRP17</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SEP5</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SEP4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SEP3</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SEP1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SEP0</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NEP0</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NEP1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NEP3</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NEP4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NEP5</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP17</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP16</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP15</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP14</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP13</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP12</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP11</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP10</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NIP3</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NIP1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP9</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP8</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP7</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP6</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP5</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP3</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NRP1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NTP4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NTP2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>NTP0</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QPushButton" name="F_3D_REC">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>560</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>3D</string>
     </property>
    </widget>
   </widget>

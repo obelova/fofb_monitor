@@ -69,7 +69,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.fofb_x = pyepics.PV('VEPP4:NEP3:lowfreq_fofb_x-I')
         self.fofb_x.add_callback(self.onChanges)
-        self.t0 = time.time()
+        self.t0 = ns.time()
         self.mean = 0.
 
 
@@ -78,7 +78,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.x = self.x[1:]  # Remove the first y element.
             self.y = self.y[1:]  # Remove the first
 
-        self.x.append(time.time() - self.t0)  # Add a new value 1 higher than the last.
+        self.x.append(ns.time() - self.t0)  # Add a new value 1 higher than the last.
         self.y.append(self.fofb_x.value)  # Add a new random value.
         self.mean = np.mean(self.y)
         temp = []
@@ -100,7 +100,7 @@ lowfreq_pv_raw.put(1)
 f = open('data_x_pv_time_30_SEP0_24_10_22_4.log', 'w')
 fofb_x = epics.PV('VEPP4:SEP0:lowfreq_fofb_x-I')
 fofb_x.add_callback(onChanges)
-time.sleep(10)
+ns.sleep(10)
 fofb_x.clear_callbacks()
 f.close()
 

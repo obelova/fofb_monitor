@@ -15,13 +15,27 @@ import epics
 import numpy as np
 from scipy.fft import fft, fftfreq
 from scipy.interpolate import interp1d
-from scipy.signal import windows
+from collections import Counter
 
+def find_most_common(x):
+    dict()
+    for num in x:
+        if num in dict:
+            dict[num] = 1
+        else:
+            dict[num] += 1
+    sort_dict = dict(sorted((value, key) for (key, value) in dict.items()))
+    return sort_dict.items()[0]
+def calc_step(x):
+    steps = x[1:] - x[:-1]
+    np.round(steps, 3)
+    return find_most_common(x)
 
-def calc_fft(x, y, spline_kind='linear', win_on=False):
+def calc_fft(x, y, spline_kind='linear'):
     # x, y - input data
     # N - number of sample points
-    N = len(x)
+    step = calc_step(x)
+    N = (x[-1] - x[0]) // step
     x_sample, step = np.linspace(x[0], x[-1], N, retstep=True)
 
     if spline_kind == 'None':
@@ -30,45 +44,78 @@ def calc_fft(x, y, spline_kind='linear', win_on=False):
         f = interp1d(x, y, kind=spline_kind)
         y_sample = f(x_sample)
 
-    if win_on == True:
-        y_sample *= windows.hann(N)
-
-    yf = 2.0 * np.abs(fft(y_sample))[:N // 2]
+    yf = 2.0 * np.abs(fft(y_sample, norm="forward"))[:N // 2]
     xf = fftfreq(N, step)[:N // 2]
     return xf, yf
 
 class Ui_MainWindow(object):
-    bpms = ["STP0", "STP2", "STP4", "SRP1", "SRP2", "SRP3", "SRP4", "SRP5", "SRP6", "SRP7",
-            "SRP8", "SRP9", "SIP1", "SIP2", "SRP10", "SRP11", "SRP12", "SRP13", "SRP14",
-            "SRP15", "SRP16", "SRP17", "SEP5", "SEP4", "SEP3", "SEP1", "SEP0", "NEP0", "NEP1",
-            "NEP3", "NEP4", "NEP5", "NRP17", "NRP16", "NRP15", "NRP14", "NRP13", "NRP12",
-            "NRP11", "NRP10", "NIP3", "NIP1", "NRP9", "NRP8", "NRP7", "NRP6", "NRP5",
-            "NRP4", "NRP3", "NRP2", "NRP1", "NTP4", "NTP2", "NTP0"]
+    vepp4_bpms = ["STP0", "STP2", "STP4",
+                  "SRP1", "SRP2", "SRP3", "SRP4", "SRP5", "SRP6", "SRP7", "SRP8", "SRP9",
+                  "SIP1", "SIP2",
+                  "SRP10", "SRP11", "SRP12", "SRP13", "SRP14", "SRP15", "SRP16", "SRP17",
+                  "SEP5", "SEP4", "SEP3", "SEP1", "SEP0",
+                  "NEP0", "NEP1", "NEP3", "NEP4", "NEP5",
+                  "NRP17", "NRP16", "NRP15", "NRP14", "NRP13", "NRP12", "NRP11", "NRP10",
+                  "NIP3", "NIP1",
+                  "NRP9", "NRP8", "NRP7", "NRP6", "NRP5", "NRP4", "NRP3", "NRP2", "NRP1",
+                  "NTP4", "NTP2", "NTP0"]
+
+    vepp3_bpms = ["1P1", "IP2", "IP3", "IP5", "IP6", "IP7", "2P3", "2P5", "2P6", "3P1",
+                  "3P2", "3P3", "3P5", "3P6", "3P8", "4P2", "4P4", "4P5", "4P6"]
+
+
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1010, 616)
+        MainWindow.resize(1300, 800)
 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
+        self.graph_options_label = QtWidgets.QLabel(self.centralwidget)
+        self.graph_options_label.setGeometry(QtCore.QRect(20, 20, 310, 20))
+        self.graph_options_label.setObjectName("graph_options_label")
+
+        self.vepp4_on_button = QtWidgets.QRadioButton(self.centralwidget)
+        self.vepp4_on_button.setGeometry(QtCore.QRect(20, 50, 120, 20))
+        self.vepp4_on_button.setChecked(True)
+        self.vepp4_on_button.setObjectName("vepp4_on_button")
+        self.vepp4_on_button.toggled.connect(self.vepp4_radio_onClicked)
+
+        self.vepp3_on_button = QtWidgets.QRadioButton(self.centralwidget)
+        self.vepp3_on_button.setGeometry(QtCore.QRect(155, 50, 120, 20))
+        self.vepp3_on_button.setChecked(True)
+        self.vepp3_on_button.setObjectName("vepp3_on_button")
+        self.vepp3_on_button.toggled.connect(self.vepp3_radio_onClicked)
+
+
+
+
         self.bmp_combobox = QtWidgets.QComboBox(self.centralwidget)
         self.bmp_combobox.setGeometry(QtCore.QRect(90, 150, 61, 22))
         self.bmp_combobox.setObjectName("bmp_combobox")
-        self.bmp_combobox.addItems(self.bpms)
+        self.bmp_combobox.addItems(self.vepp4_bpms)
         self.cur_bpm = ''
 
         self.write_to_file_button = QtWidgets.QPushButton(self.centralwidget)
         self.write_to_file_button.setGeometry(QtCore.QRect(40, 440, 93, 28))
         self.write_to_file_button.setObjectName("write_to_file_button")
+        self.write_to_file_button.clicked.connect(self.write_onClicked)
 
         self.x_checkbox = QtWidgets.QCheckBox(self.centralwidget)
         self.x_checkbox.setGeometry(QtCore.QRect(20, 330, 81, 20))
         self.x_checkbox.setObjectName("x_checkbox")
+        self.x_checkbox.toggle()
+
+        self.I_checkbox = QtWidgets.QCheckBox(self.centralwidget)
+        self.I_checkbox.setGeometry(QtCore.QRect(20, 390, 81, 20))
+        self.I_checkbox.setObjectName("I_checkbox")
+        self.I_checkbox.toggle()
 
         self.z_checkbox = QtWidgets.QCheckBox(self.centralwidget)
         self.z_checkbox.setGeometry(QtCore.QRect(20, 360, 81, 20))
         self.z_checkbox.setObjectName("z_checkbox")
+        self.z_checkbox.toggle()
 
         self.total_time_line = QtWidgets.QLineEdit(self.centralwidget)
         self.total_time_line.setGeometry(QtCore.QRect(90, 360, 61, 22))
@@ -77,10 +124,6 @@ class Ui_MainWindow(object):
         self.seconds_label = QtWidgets.QLabel(self.centralwidget)
         self.seconds_label.setGeometry(QtCore.QRect(160, 360, 21, 16))
         self.seconds_label.setObjectName("seconds_label")
-
-        self.I_checkbox = QtWidgets.QCheckBox(self.centralwidget)
-        self.I_checkbox.setGeometry(QtCore.QRect(20, 390, 81, 20))
-        self.I_checkbox.setObjectName("I_checkbox")
 
         self.recording_time_label = QtWidgets.QLabel(self.centralwidget)
         self.recording_time_label.setGeometry(QtCore.QRect(90, 320, 91, 41))
@@ -92,7 +135,7 @@ class Ui_MainWindow(object):
         self.mean = 0.
 
         self.graph = PlotWidget(self.centralwidget)
-        self.graph.setGeometry(QtCore.QRect(200, 20, 781, 251))
+        self.graph.setGeometry(QtCore.QRect(350, 20, 930, 370))
         self.graph.setObjectName("graph")
         self.graph.setBackground('w')
         pen = pg.mkPen(color=(255, 0, 0))
@@ -102,21 +145,11 @@ class Ui_MainWindow(object):
         self.ch_fft = []
 
         self.fourier = PlotWidget(self.centralwidget)
-        self.fourier.setGeometry(QtCore.QRect(200, 290, 781, 251))
+        self.fourier.setGeometry(QtCore.QRect(350, 410, 930, 370))
         self.fourier.setObjectName("fourier")
         self.fourier.setBackground('w')
         pen = pg.mkPen(color=(255, 0, 0))
         self.data_line_fourier = self.fourier.plot(self.f_fft, self.ch_fft, pen=pen)
-
-        self.graph_options_label = QtWidgets.QLabel(self.centralwidget)
-        self.graph_options_label.setGeometry(QtCore.QRect(20, 20, 91, 16))
-        self.graph_options_label.setObjectName("graph_options_label")
-
-        self.on_button = QtWidgets.QRadioButton(self.centralwidget)
-        self.on_button.setGeometry(QtCore.QRect(20, 50, 95, 20))
-        self.on_button.setChecked(True)
-        self.on_button.setObjectName("on_button")
-        self.on_button.toggled.connect(self.radio_onClicked)
 
         self.bpm_label = QtWidgets.QLabel(self.centralwidget)
         self.bpm_label.setGeometry(QtCore.QRect(50, 150, 55, 21))
@@ -128,7 +161,7 @@ class Ui_MainWindow(object):
         self.channel_combobox = QtWidgets.QComboBox(self.centralwidget)
         self.channel_combobox.setGeometry(QtCore.QRect(90, 180, 61, 22))
         self.channel_combobox.setObjectName("channel_combobox")
-        self.channel_combobox.addItems(["x", "z", "i"])
+        self.channel_combobox.addItems(["x", "z", "I"])
         self.cur_channel = self.channel_combobox.currentText()
 
         self.show_button = QtWidgets.QPushButton(self.centralwidget)
@@ -161,15 +194,18 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-
-    def radio_onClicked(self):
-        on = self.on_button.isChecked()
-        for bpm in self.bpms:
+    def vepp4_radio_onClicked(self):
+        on = self.vepp4_on_button.isChecked()
+        for bpm in self.vepp4_bpms:
             epics.PV('VEPP4:'+bpm+':connect-Cmd').put(on)
 
-    def fofb_pv_onChanges(self, pvname=None, nanoseconds=None, value=None, char_value=None, **kw):
-        # print(value, self.mode_lowfreq.value)
-        self.t.append(self.cur_time_in_sec + nanoseconds / 1000000000)  # Add a new value 1 higher than the last.
+    def vepp3_radio_onClicked(self):
+        on = self.vepp3_on_button.isChecked()
+        for bpm in self.vepp3_bpms:
+            epics.PV('VEPP3:'+bpm+':connect-Cmd').put(on)
+
+    def show_graphs(self, nanoseconds, value):
+        self.t.append(self.cur_time_in_sec + nanoseconds / 1000000000)
         if len(self.t) > 1 and self.t[-2] > self.t[-1]:
             self.t[-1] += 1.
             self.cur_time_in_sec += 1
@@ -185,12 +221,11 @@ class Ui_MainWindow(object):
             self.data_line_fourier.setData(self.t_fft[2:], self.ch_fft[2:])
             self.t = self.t[50:]
             self.ch = self.ch[50:]
-
+    def fofb_pv_onChanges(self, pvname=None, nanoseconds=None, value=None, char_value=None, **kw):
+        # print(value, self.mode_lowfreq.value)
+        self.show_graphs(nanoseconds, value)
 
     def show_onClicked(self):
-        self.t = []
-        self.ch = []
-
         self.show_button.setStyleSheet('background-color: grey;')
         self.stop_button.setStyleSheet('background-color: light grey;')
 
@@ -208,9 +243,7 @@ class Ui_MainWindow(object):
         self.fofb_ch.add_callback(self.fofb_pv_onChanges)
 
     def mode_lowfreq_onChanges(self, pvname=None, value=None, char_value=None, **kw):
-
         if value == 5:
-            print('callback works!')
             self.mode_lowfreq.put(10)
 
     def stop_onClicked(self):
@@ -224,12 +257,36 @@ class Ui_MainWindow(object):
 
         epics.PV('VEPP4:' + self.cur_bpm + ':lowfreq_raw-Cmd').put(0)
 
-        self.on_button.setChecked(True)
+        self.vepp4_on_button.setChecked(True)
         self.cur_time_in_sec = 0.0
+
+        self.t = []
+        self.ch = []
+
+    def onChanges(self, pvname=None, nanoseconds=None, value=None, char_value=None, **kw):
+        self.show_graphs(nanoseconds, value)
+        self.f.write(str(nanoseconds))
+        self.f.write(' ')
+        self.f.write(str(value))
+        self.f.write('\n')
+
+    def write_onClicked(self):
+        self.fofb_ch.clear_callbacks()
+        self.cur_time_in_sec = 0
+        self.f = open('test.log', 'w')
+        self.fofb_ch.add_callback(self.onChanges)
+        if self.cur_time_in_sec == 10:
+            epics.PV('VEPP4'+self.cur_bpm+'lowfreq_fofb_x-I').clear_callbacks()
+            self.f.close()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "FOFB Monitor"))
+        self.graph_options_label.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Graph Options</span></p></body></html>"))
+        self.vepp4_on_button.setText(_translate("MainWindow", "VEPP-4M PVs On"))
+        self.vepp3_on_button.setText(_translate("MainWindow", "VEPP-3 PVs On"))
+
+
         self.bmp_combobox.setItemText(0, _translate("MainWindow", "STP0"))
         self.bmp_combobox.setItemText(1, _translate("MainWindow", "STP2"))
         self.bmp_combobox.setItemText(2, _translate("MainWindow", "STP4"))
@@ -290,8 +347,6 @@ class Ui_MainWindow(object):
         self.seconds_label.setText(_translate("MainWindow", "s"))
         self.I_checkbox.setText(_translate("MainWindow", "i"))
         self.recording_time_label.setText(_translate("MainWindow", "Recording time:"))
-        self.graph_options_label.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Graph Options</span></p></body></html>"))
-        self.on_button.setText(_translate("MainWindow", "All pv on"))
         self.bpm_label.setText(_translate("MainWindow", "BPM:"))
         self.channel_label.setText(_translate("MainWindow", "channel:"))
         self.channel_combobox.setItemText(0, _translate("MainWindow", "x"))
