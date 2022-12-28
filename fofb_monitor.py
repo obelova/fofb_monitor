@@ -189,7 +189,7 @@ class Ui_MainWindow(object):
         self.F_REC.setGeometry(QtCore.QRect(130, 520, 93, 28))
         self.F_REC.setObjectName("F_REC")
 
-        self.files = []
+        self.files = dict(x=None, z=None, I=None)
 
         #self.F_3D_REC = QtWidgets.QPushButton(self.centralwidget)
         #self.F_3D_REC.setGeometry(QtCore.QRect(130, 560, 93, 28))
@@ -257,32 +257,39 @@ class Ui_MainWindow(object):
         self.t.append(self.cur_time_in_sec + nanoseconds / 1000000000)
         self.sig.append(value)
 
-    def f_pv_onChanges(self):
-        return
-    
+    def f_pv_onChanges(self, pvname=None, nanoseconds=None, value=None, char_value=None, **kw):
+        cur_channel = pvname[-3]
+
     def f_rec_onClicked(self):
         time_in_sec = float(self.F_SIZE.text())
         cur_bpm = self.V_BPM.currentText()
 
         isChecked = dict([('x', self.F_X.isChecked()), ('z', self.F_Z.isChecked()), ('I', self.F_I.isChecked())])
-        filenames = []
-        x_checked = self.F_X.isChecked()
+        pvs = []
 
         pv_mode_lowfreq = epics.PV('VEPP4:' + cur_bpm + ':mode_lowfreq-Cmd')
         pv_lowfreq_raw = epics.PV('VEPP4:' + cur_bpm + ':lowfreq_raw-Cmd')
+        pv_nturns = epics.PV('VEPP4:' + cur_bpm + ':nturns_lowfreq-SP')
 
         pv_lowfreq_raw.put(1)
         pv_mode_lowfreq.put(30)
+        pv_nturns.put(800)
 
+        i = 0
         for key, value in isChecked.items():
             if value:
-                pv = epics.PV('VEPP4:' + cur_bpm + ':lowfreq_fofb_' + key + '-I')
-                filenames.append([cur_bpm + '_' + key + '.log'])
-                f = open(filenames.pop(), 'w')
-                pv.add_callback(self.f_pv_onChanges)
-                time.sleep(time_in_sec)
-                pv.clear_callbacks()
-                f.close()
+                pvs[i] = epics.PV('VEPP4:' + cur_bpm + ':lowfreq_fofb_' + key + '-I')
+                ++i
+                filename = cur_bpm + '_' + key + '.log'
+                self.files[key] = open(filename, 'w')
+                pvs[i].add_callback(self.f_pv_onChanges)
+
+        time.sleep(time_in_sec)
+        for pv in pvs:
+            pv.clear_callbacks()
+        for k, v in self.files.items():
+            if v is not None:
+                v.close()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

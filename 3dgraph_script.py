@@ -16,15 +16,17 @@ vepp4_bpms = ["STP0", "STP2", "STP4",
 vepp3_bpms = ["1P1", "1P2", "1P3", "1P5", "1P6", "1P7", "2P3", "2P4", "2P5", "2P6", "3P1",
               "3P2", "3P3", "3P5", "3P6", "3P8", "4P2", "4P4", "4P5", "4P6"]
 
-channel = 'x'
+channel = 'i'
 
 t0 = 0.0
 ns = []
 data = []
 
+
 def set_bpms_on_off(on, name, bpm_set):
     for bpm in bpm_set:
         epics.PV(name+':'+bpm+':connect-Cmd').put(on)
+
 
 def onChanged(pvname=None, nanoseconds=None, value=None, char_value=None, **kw):
     global t0, ns, data
@@ -34,31 +36,42 @@ def onChanged(pvname=None, nanoseconds=None, value=None, char_value=None, **kw):
     data.append(value)
 
 
-for bpm_vepp_3 in vepp3_bpms:
-    set_bpms_on_off(0, 'VEPP3', vepp3_bpms)
-    print('off')
-for bpm_vepp_4 in vepp4_bpms:
-    set_bpms_on_off(0, 'VEPP4', vepp4_bpms)
-for bpm in vepp4_bpms:
-    epics.PV('VEPP4:' + bpm + ':connect-Cmd').put(1)
-    pv_mode_lowfreq = epics.PV('VEPP4:' + bpm + ':mode_lowfreq-Cmd')
-    pv_lowfreq_raw = epics.PV('VEPP4:' + bpm + ':lowfreq_raw-Cmd')
-    pv_cur_channel = epics.PV('VEPP4:' + bpm + ':lowfreq_fofb_' + channel + '-I')
+def saveToFile(bpm):
+    f = open(bpm+'_'+channel+'.log', 'w')
+    for i in range(len(data)):
+        f.write(str(ns[i]))
+        f.write(', ')
+        f.write(str(data[i]))
+        f.write('\n')
+    f.close()
 
-    pv_lowfreq_raw.put(1)
-    pv_mode_lowfreq.put(30)
-    pv_cur_channel.add_callback(onChanged)
 
-    time.sleep(1)
-    print('ready')
+if __name__ == "__main__":
+    # for bpm_vepp_3 in vepp3_bpms:
+    #     set_bpms_on_off(0, 'VEPP3', vepp3_bpms)
+    for bpm_vepp_4 in vepp4_bpms:
+        set_bpms_on_off(0, 'VEPP4', vepp4_bpms)
+    for bpm in vepp4_bpms:
+        print(bpm + ' being written')
+        pv_bpm_connect = epics.PV('VEPP4:' + bpm + ':connect-Cmd')
+        pv_mode_lowfreq = epics.PV('VEPP4:' + bpm + ':mode_lowfreq-Cmd')
+        pv_lowfreq_raw = epics.PV('VEPP4:' + bpm + ':lowfreq_raw-Cmd')
+        pv_cur_channel = epics.PV('VEPP4:' + bpm + ':lowfreq_fofb_' + channel + '-I')
+        epics.PV('VEPP4:' + bpm + ':nturns_lowfreq-SP').put(800)
 
-    pv_cur_channel.clear_callbacks()
-    pv_mode_lowfreq.put(0)
-    pv_lowfreq_raw.put(0)
-    epics.PV('VEPP4:' + bpm + ':connect-Cmd').put(0)
+        pv_bpm_connect.put(1)
+        pv_lowfreq_raw.put(1)
+        pv_mode_lowfreq.put(30)
+        pv_cur_channel.add_callback(onChanged)
 
-    zipped = zip(ns, data)
-    np.savetxt(bpm + '_' + channel + '.log', zipped, fmt='%i, %i')
-    t0 = 0
-    t0 = []
-    data = [0]
+        time.sleep(2)
+
+        pv_cur_channel.clear_callbacks()
+        pv_mode_lowfreq.put(0)
+        pv_lowfreq_raw.put(0)
+        pv_bpm_connect.put(0)
+
+        saveToFile(bpm)
+        data = []
+        ns = []
+        t0 = 0
